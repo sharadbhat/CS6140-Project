@@ -1,8 +1,8 @@
 import os
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfTransformer
-from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
+from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
 
 filepath = os.path.join(os.path.dirname(__file__), '../data/train.json') 
@@ -46,16 +46,23 @@ pca = PCA(n_components=2).fit(tfidf.toarray())
 data2D = pca.transform(tfidf.toarray())
 
 
-######################################
-## Running KMeans on reduced matrix ##
-######################################
-kmeans = KMeans(init='k-means++', n_clusters=3).fit(data2D)
+##########################################################
+## Running KMeans on TFIDF matrix and storing SSE score ##
+##########################################################
+sse = {}
+for k in range(1, 21):
+    kmeans = KMeans(init='k-means++', n_clusters=k, max_iter=1000).fit(data2D)
+    sse[k] = kmeans.inertia_
 
 
-###########################
-## Plotting the clusters ##
-###########################
-plt.scatter(data2D[:,0], data2D[:,1], c=kmeans.labels_, cmap='rainbow')
-for i, txt in enumerate(ingredients_per_cuisine_df.index):
-    plt.annotate(txt, (data2D[i,0], data2D[i,1]))
+#############################
+## Plotting the SSE scores ##
+#############################
+plt.axvline(x=3, color='r', linestyle='--')
+plt.plot(list(sse.keys()), list(sse.values()), marker='o')
+plt.title('Elbow Method')
+plt.xlabel('Number of cluster')
+plt.legend(['Elbow Point (k=3)', 'SSE'], reverse=True)
+plt.ylabel('SSE')
+plt.xticks(list(sse.keys()))
 plt.show()

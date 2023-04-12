@@ -49,7 +49,7 @@ data2D = pca.transform(tfidf.toarray())
 ######################################
 ## Running KMeans on reduced matrix ##
 ######################################
-kmeans = KMeans(init='k-means++', n_clusters=3).fit(data2D)
+kmeans = KMeans(init='k-means++', n_clusters=3, max_iter=1000).fit(data2D)
 
 
 ###########################
